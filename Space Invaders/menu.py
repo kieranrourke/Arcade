@@ -7,14 +7,15 @@ import json
 # ! Menu class should be used/adjusted for other games in the aracde
 class Menu():
     """General Menu Class for the menus
-    """    
-    def __init__(self, game, background, states:list, cursorLocation: list):
+    """
+
+    def __init__(self, game, background, states: list, cursorLocation: list):
         self.game = game
         self.background = background
         self.defaultFont = pygame.font.Font('freesansbold.ttf', 32)
         self.bigDefaultFont = pygame.font.Font('freesansbold.ttf', 60)
         self.showDisplay = False
-        #Important variable that will allow the program to know how to move the cursor
+        # Important variable that will allow the program to know how to move the cursor
         self.stateDifference = 82
 
         # States are used for menus that need user selection so the program knows what their cursor is on
@@ -22,13 +23,13 @@ class Menu():
             self.states = states
             self.state = states[0]
 
-         #Base cursor location normally will be passed in if needed format is [x,y]
+         # Base cursor location normally will be passed in if needed format is [x,y]
         if not cursorLocation:
             self.cursorLocation = [self.game.xBound/2, self.game.yBound/2]
         else:
             self.cursorLocation = cursorLocation
 
-    def drawText(self, text:str, x:int, y:int, font):
+    def drawText(self, text: str, x: int, y: int, font):
         """Used to draw text on the screen
 
         Args:
@@ -36,18 +37,18 @@ class Menu():
             x (int): x coordinate
             y (int): y coordinate
             font ([fontType]): font used to display the text
-        """        
+        """
         text = font.render(text, True, (0, 255, 0))
         self.game.screen.blit(text, (x, y))
 
-    def createMenu(self, yDifference:int, font):
+    def createMenu(self, yDifference: int, font):
         """Function used when wanting to create a menu where the user can navigate
         for example the main menu of space invaders
 
         Args:
             yDifference (int): the difference in y values between the menu options
             font (fontType): font used to display the menu 
-        """        
+        """
         self.stateDifference = yDifference
         self.startingPosX = self.game.xBound/2 - 100
         self.startingPosY = self.game.yBound/2 - 50
@@ -57,20 +58,21 @@ class Menu():
 
     def showMenu(self,):
         """Dispalys the background of menu
-        """        
+        """
         self.game.screen.blit(self.background, (0, 0))
 
-    def drawCursor(self, offset:int):
+    def drawCursor(self, offset: int):
         """Draws the cursor as a * on the screen
 
         Args:
             offset (int): Offset the X position of the cursor so it is not ontop of the state 
-        """        
-        self.drawText('*', self.cursorLocation[0] + offset, self.cursorLocation[1], self.defaultFont)
+        """
+        self.drawText(
+            '*', self.cursorLocation[0] + offset, self.cursorLocation[1], self.defaultFont)
 
     def moveCursorUp(self):
         """Moves the cursor up and updates the cursor location
-        """        
+        """
         if self.shiftState(True):
             self.cursorLocation[1] = self.cursorLocation[1] - \
                 self.stateDifference
@@ -165,16 +167,17 @@ class DifficultyMenu(Menu):
     def __init__(self, game, background):
         self.states = ['Easy', 'Medium', 'Hard']
         self.game = game
-        Menu.__init__(self, game, background, self.states, [self.game.xBound/2-100, self.game.yBound/2-45])
+        Menu.__init__(self, game, background, self.states, [
+                      self.game.xBound/2-100, self.game.yBound/2-45])
         self.font = pygame.font.Font('freesansbold.ttf', 45)
-        
 
     def displayLoop(self):
         while self.showDisplay:
             self.game.screen.fill((0, 0, 0))
             self.showMenu()
             self.createMenu(50, self.font)
-            self.drawText('Choose Difficulty:', self.game.xBound/2 - 250, 200, self.bigDefaultFont)
+            self.drawText('Choose Difficulty:', self.game.xBound /
+                          2 - 250, 200, self.bigDefaultFont)
             self.drawCursor(-20)
             self.game.checkEvents()
             if self.game.SKEY:
@@ -205,7 +208,8 @@ class HighscoresMenu(Menu):
         while self.showDisplay:
             self.game.screen.fill((0, 0, 0))
             self.showMenu()
-            self.drawText('Highscores:', self.game.xBound/2 - 150, 100, self.font)
+            self.drawText('Highscores:', self.game.xBound /
+                          2 - 150, 100, self.font)
             self.showHighScores()
             self.game.checkEvents()
             if self.game.QUITKEY:
@@ -219,23 +223,23 @@ class HighscoresMenu(Menu):
     def showHighScores(self):
         self.xPos = 300
         self.yPos = self.game.yBound/2 - 200
-        self.game.scores = dict(sorted(self.game.scores.items(), key=lambda item: item[1], reverse=True))
+        self.game.scores = dict(
+            sorted(self.game.scores.items(), key=lambda item: item[1], reverse=True))
         self.keys = list(self.game.scores.keys())
         self.values = list(self.game.scores.values())
-        
+
         if len(self.keys) <= 10:
             self.displayHighScores(len(self.keys))
         else:
             self.displayHighScores(10)
 
-    def displayHighScores(self, numHighScores:int):
-        for i in range(numHighScores): 
+    def displayHighScores(self, numHighScores: int):
+        for i in range(numHighScores):
             nameLength = len(self.keys[i])
             self.drawText(self.keys[i], self.xPos,
                           self.yPos + self.yDifference * i, self.defaultFont)
             self.drawText(str(self.values[i]), self.xPos + nameLength * 22,
                           self.yPos + self.yDifference * i, self.defaultFont)
-
 
 
 class HelpMenu(Menu):
@@ -251,7 +255,8 @@ class HelpMenu(Menu):
             self.game.screen.fill((0, 0, 0))
             self.showMenu()
             self.displayHelpText()
-            self.drawText('Help Menu:', self.game.xBound/2 - 200, 200, self.bigDefaultFont)
+            self.drawText('Help Menu:', self.game.xBound /
+                          2 - 200, 200, self.bigDefaultFont)
             self.game.checkEvents()
             if self.game.BACKKEY or self.game.ESCAPEKEY:
                 self.exitNotMainMenu()
@@ -263,13 +268,15 @@ class HelpMenu(Menu):
     def displayHelpText(self,):
         self.xPos = 50
         self.yPos = self.game.xBound/2 - 100
-        #So many different help texts in order to display across multiple lines
+        # So many different help texts in order to display across multiple lines
         helpText = self.font.render(self.text[:25], True, (0, 255, 0))
         self.game.screen.blit(helpText, (self.xPos, self.yPos))
         helpText = self.font.render(self.text[25:55], True, (0, 255, 0))
         self.game.screen.blit(helpText, (self.xPos, self.yPos + self.offset))
         helpText = self.font.render(self.text[55:], True, (0, 255, 0))
-        self.game.screen.blit(helpText, (self.xPos, self.yPos + self.offset * 2))
+        self.game.screen.blit(
+            helpText, (self.xPos, self.yPos + self.offset * 2))
+
 
 class TextInput(Menu):
     def __init__(self, game, background):
@@ -278,7 +285,7 @@ class TextInput(Menu):
         self.inputs = {}
         self.name = ''
         self.inputFont = pygame.font.Font('freesansbold.ttf', 40)
-    
+
     def returnToMainMenu(self):
         self.game.inGame = False
         self.showDisplay = False
@@ -295,17 +302,17 @@ class TextInput(Menu):
                     self.name = firstKey + self.name[1:] + ':'
                     self.saveScore()
                     self.returnToMainMenu()
-                #Converts pygame_event to the actualy key name pressed
+                # Converts pygame_event to the actualy key name pressed
                 keyPressed = pygame.key.name(event.key)
                 self.inputs[keyPressed] = True
 
     def clearDictionary(self):
         self.inputs = {}
-    
+
     def saveScore(self,):
         """Saves the score of the player
-        """        
-        #Only saves score if it is higher than their previous score
+        """
+        # Only saves score if it is higher than their previous score
         if self.game.scores[self.name] < self.game.scoreboard.score:
             self.game.scores[self.name] = self.game.scoreboard.score
             with open("highscores.json", 'w+') as f:
@@ -318,7 +325,8 @@ class TextInput(Menu):
         while self.showDisplay:
             self.game.screen.fill((0, 0, 0))
             self.showMenu()
-            self.drawText('Enter Name:', self.game.xBound/2 - 200, 200, self.bigDefaultFont)
+            self.drawText('Enter Name:', self.game.xBound /
+                          2 - 200, 200, self.bigDefaultFont)
             self.checkInput()
 
             for key, item in self.inputs.items():
@@ -331,4 +339,3 @@ class TextInput(Menu):
             self.drawText(self.name, 300, 300, self.inputFont)
             pygame.display.update()
             self.game.resetKeys()
-

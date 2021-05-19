@@ -10,6 +10,8 @@ import pathlib
 
 folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
 # Creating SpaceInvaders
+
+
 class SpaceInvaders(Game):
     def __init__(self,):
         Game.__init__(self, 800, 800, 'Space Invaders',
@@ -26,13 +28,13 @@ class SpaceInvaders(Game):
         self.helpMenu = HelpMenu(self, self.background,)
         self.highscoresMenu = HighscoresMenu(self, self.background)
         self.difficultyMenu = DifficultyMenu(self, self.background)
-        self.textInputMenu = TextInput(self,self.background)
+        self.textInputMenu = TextInput(self, self.background)
         try:
             with open("highscores.json", 'r') as f:
                 self.scores = json.load(f)
         except:
             self.scores = {}
-        
+
     def createPlayer(self):
         self.player = Player(self)
 
@@ -55,7 +57,7 @@ class SpaceInvaders(Game):
         Easy: Fast Player xChange, Slow Enemy movement, 3 Enemies, Fast bullet movement
         Medium: Normal Player xChange, Normal enemy movement, 4 Enemies, Normal bullet movement
         Hard: Normal Player xChange, Faster enemy movement, 5 Enemies Normal bullet movement
-        """        
+        """
         if self.difficulty == 'Easy':
             self.player.xMovement = 10
             for i in range(self.numEnemies):
@@ -67,16 +69,15 @@ class SpaceInvaders(Game):
             for i in range(self.numEnemies):
                 self.enemies[i].xMovement = 4
             self.bullet.yChange = -8
-            
+
         elif self.difficulty == 'Hard':
             self.player.xMovement = 8
             for i in range(self.numEnemies):
                 self.enemies[i].xMovement = 7
             self.bullet.yChange = -8
-        
+
         for i in range(self.numEnemies):
             self.enemies[i].xChange = self.enemies[i].xMovement
-
 
     def createScoreboard(self):
         self.scoreboard = Scoreboard(self)
@@ -101,12 +102,13 @@ class SpaceInvaders(Game):
 
         self.scoreboard.showScore()
         pygame.display.update()
-    
+
     def gameOver(self) -> None:
         '''
         Intiate game over sequence
         '''
-        text = self.font.render(f"GAME OVER: {self.scoreboard.score}", True, (255, 255, 255))
+        text = self.font.render(
+            f"GAME OVER: {self.scoreboard.score}", True, (255, 255, 255))
         self.screen.blit(text, (160, 275))
         self.textInputMenu.displayLoop()
         self.inMenu = True
@@ -126,7 +128,7 @@ class SpaceInvaders(Game):
             else:
                 self.inGame = True
                 self.inMenu = False
-    
+
     def gameLoop(self):
         while self.inGame:
             self.setMisc()
@@ -167,7 +169,6 @@ class SpaceInvaders(Game):
             self.resetKeys()
             self.clock.tick(60)
 
-    
     def game_loop(self,):
         self.running = True
         while self.running:
@@ -179,7 +180,7 @@ class SpaceInvaders(Game):
             self.createScoreboard()
             self.applyDifficulty()
             self.gameLoop()
-        
+
 
 # Creating the Player Class
 class Player():
