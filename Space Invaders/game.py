@@ -3,24 +3,34 @@ import math
 
 import pygame
 from pygame import mixer
+import pathlib
+
+# Fix Python/Github error
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
 
 # Creating the Game Class
+# ! Game class should be used/adjusted for other games in the aracde
 
 
 class Game:
+    """General Game class
+    """
+
     def __init__(self, xBound, yBound, caption, icon):
         self.caption = caption
         self.icon = icon
         self.xBound = xBound
         self.yBound = yBound
         self.font = pygame.font.Font('freesansbold.ttf', 64)
-        self.background = pygame.image.load('background.png')
+        self.background = pygame.image.load(folder_path+'background.png')
         self.background = pygame.transform.scale(
             self.background, (xBound, yBound))
+        # Sets up the game loop Variables
         self.running = True
         self.inMenu = True
         self.inGame = True
         self.screen = pygame.display.set_mode((self.xBound, self.yBound))
+        # The way user input is tracked
         self.WKEY, self.AKEY, self.SKEY, self.DKEY = False, False, False, False
         self.ENTERKEY, self.BACKKEY = False, False
         self.QUITKEY = False
@@ -38,6 +48,10 @@ class Game:
         self.screen.blit(image, (x, y))
 
     def checkEvents(self):
+        """In pygame user inputs are done by events.
+        This function uses the boolean values intialized 
+        in the constructor to track user input
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running, self.inMenu, self.QUITKEY, self.inGame = False, False, True, False
@@ -65,7 +79,7 @@ class Game:
                     self.UPDKEY = True
 
     def resetKeys(self):
+        """Reset all keys
+        """
         self.WKEY, self.AKEY, self.SKEY, self.DKEY, self.ENTERKEY, self.BACKKEY, self.SPACEKEY, self.UPAKEY, self.UPDKEY, self.ESCAPEKEY\
             = False, False, False, False, False, False, False, False, False, False
-
-    

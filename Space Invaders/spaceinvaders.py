@@ -5,19 +5,23 @@ import pygame
 from pygame import mixer
 from game import Game
 from menu import *
+import pathlib
+import json
 
+
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
 # Creating SpaceInvaders
 
 
 class SpaceInvaders(Game):
     def __init__(self,):
         Game.__init__(self, 800, 800, 'Space Invaders',
-                      pygame.image.load("ufo.png"))
+                      pygame.image.load(folder_path+"ufo.png"))
         self.numEnemies = 4
         self.difficulty = 'Easy'
-        mixer.music.load('background.wav')
+        mixer.music.load(folder_path+'background.wav')
         mixer.music.play(-1)
-        self.menuBackground = pygame.image.load('menu.png')
+        self.menuBackground = pygame.image.load(folder_path+'menu.png')
         self.menuBackground = pygame.transform.scale(
             self.menuBackground, (self.xBound, self.yBound))
         self.currentMenu = 'Main'
@@ -59,19 +63,19 @@ class SpaceInvaders(Game):
             self.player.xMovement = 10
             for i in range(self.numEnemies):
                 self.enemies[i].xMovement = 2
-            self.bullet.yChange = -8
+            self.bullet.yChange = -10
 
         elif self.difficulty == 'Medium':
             self.player.xMovement = 8
             for i in range(self.numEnemies):
                 self.enemies[i].xMovement = 4
-            self.bullet.yChange = -5
+            self.bullet.yChange = -8
 
         elif self.difficulty == 'Hard':
             self.player.xMovement = 8
             for i in range(self.numEnemies):
                 self.enemies[i].xMovement = 7
-            self.bullet.yChange = -5
+            self.bullet.yChange = -8
 
         for i in range(self.numEnemies):
             self.enemies[i].xChange = self.enemies[i].xMovement
@@ -183,7 +187,7 @@ class SpaceInvaders(Game):
 class Player():
     def __init__(self, game):
         self.game = game
-        self.image = pygame.image.load("player.png")
+        self.image = pygame.image.load(folder_path+"player.png")
         self.image = pygame.transform.scale(self.image, (150, 150))
         self.xPos = 300
         self.yPos = 800
@@ -228,7 +232,7 @@ class Player():
 class Enemy():
     def __init__(self, game):
         self.game = game
-        self.image = pygame.image.load("enemy.png")
+        self.image = pygame.image.load(folder_path+"enemy.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.xPos = random.randint(0, 500)
         self.yPos = random.randint(1, 100)
@@ -283,9 +287,9 @@ class Enemy():
 class Bullet:
     def __init__(self, game):
         self.game = game
-        self.shootingSound = mixer.Sound('shoot.wav')
-        self.hitSound = mixer.Sound('invaderhit.wav')
-        self.image = pygame.image.load("bullet.png")
+        self.shootingSound = mixer.Sound(folder_path+'shoot.wav')
+        self.hitSound = mixer.Sound(folder_path+'invaderhit.wav')
+        self.image = pygame.image.load(folder_path+"bullet.png")
         self.image = pygame.transform.scale(self.image, (150, 150))
         self.xPos = 0
         self.yPos = 0
