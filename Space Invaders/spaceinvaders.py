@@ -108,6 +108,7 @@ class SpaceInvaders(Game):
         '''
         Intiate game over sequence
         '''
+        print('hi')
         text = self.font.render(
             f"GAME OVER: {self.scoreboard.score}", True, (255, 255, 255))
         self.screen.blit(text, (160, 275))
@@ -259,6 +260,8 @@ class Enemy():
         Hide enemies from the display
         '''
         self.xPos = self.game.xBound + 1000
+        self.yPos = self.game.xBound - 2000
+
 
     def checkBoundary(self):
         if self.xPos <= 0:
