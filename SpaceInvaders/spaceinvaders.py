@@ -6,6 +6,7 @@ from pygame import mixer
 from game import Game
 from menu import *
 import pathlib
+import json
 
 
 folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
