@@ -313,7 +313,12 @@ class TextInput(Menu):
         """Saves the score of the player
         """
         # Only saves score if it is higher than their previous score
-        if self.game.scores[self.name] < self.game.scoreboard.score:
+        if self.name in self.game.scores.keys():
+            if self.game.scores[self.name] < self.game.scoreboard.score:
+                self.game.scores[self.name] = self.game.scoreboard.score
+                with open("highscores.json", 'w+') as f:
+                    json.dump(self.game.scores, f)
+        else:
             self.game.scores[self.name] = self.game.scoreboard.score
             with open("highscores.json", 'w+') as f:
                 json.dump(self.game.scores, f)
