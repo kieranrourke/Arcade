@@ -16,7 +16,7 @@ folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
 class SpaceInvaders(Game):
     def __init__(self,):
         Game.__init__(self, 800, 800, 'Space Invaders',
-                      pygame.image.load(folder_path+"ufo.png"))
+                      pygame.image.load(folder_path+"ufo.png"), 'background.png')
         self.numEnemies = 4
         self.difficulty = 'Easy'
         mixer.music.load(folder_path+'background.wav')
@@ -82,12 +82,6 @@ class SpaceInvaders(Game):
 
     def createScoreboard(self):
         self.scoreboard = Scoreboard(self)
-
-    def setMisc(self):
-        self.setIcon()
-        self.setCaption()
-        self.screen.fill((255, 255, 255))
-        self.draw(self.background, 0, 0)
 
     def updateDisplay(self):
         '''
