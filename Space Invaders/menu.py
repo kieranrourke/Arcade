@@ -3,7 +3,6 @@ from pygame import mixer
 from game import Game
 import json
 
-
 # ! Menu class should be used/adjusted for other games in the aracde
 class Menu():
     """General Menu Class for the menus
@@ -47,7 +46,7 @@ class Menu():
 
         Args:
             yDifference (int): the difference in y values between the menu options
-            font (fontType): font used to display the menu 
+            font (fontType): font used to display the menu
         """
         self.stateDifference = yDifference
         self.startingPosX = self.game.xBound/2 - 100
@@ -65,7 +64,7 @@ class Menu():
         """Draws the cursor as a * on the screen
 
         Args:
-            offset (int): Offset the X position of the cursor so it is not ontop of the state 
+            offset (int): Offset the X position of the cursor so it is not ontop of the state
         """
         self.drawText(
             '*', self.cursorLocation[0] + offset, self.cursorLocation[1], self.defaultFont)
@@ -313,9 +312,14 @@ class TextInput(Menu):
         """Saves the score of the player
         """
         # Only saves score if it is higher than their previous score
-        if self.game.scores[self.name] < self.game.scoreboard.score:
+        if self.game.scores.get(self.name):
+            if self.game.scores[self.name] < self.game.scoreboard.score:
+                self.game.scores[self.name] = self.game.scoreboard.score
+                with open("highscores.json", 'w+') as f:
+                    json.dump(self.game.scores, f)
+        else:
             self.game.scores[self.name] = self.game.scoreboard.score
-            with open("highscores.json", 'w+') as f:
+            with open("highscores.json", "w+") as f:
                 json.dump(self.game.scores, f)
 
     def displayLoop(self):
