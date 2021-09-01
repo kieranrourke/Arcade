@@ -6,7 +6,7 @@ from pygame import mixer
 import pathlib
 
 # Fix Python/Github error
-folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 
 # Creating the Game Class
 # ! Game class should be used/adjusted for other games in the aracde
@@ -38,6 +38,7 @@ class Game:
         self.SPACEKEY = False
         self.ESCAPEKEY = False
         self.UPAKEY, self.UPDKEY, self.UPWKEY, self.UPSKEY = False, False, False, False
+        self.MOUSE_POS = False
         self.clock = pygame.time.Clock()
 
     def setMisc(self):
@@ -97,10 +98,13 @@ class Game:
                     self.UPUPARROWKEY = True
                 elif event.key == pygame.K_DOWN:
                     self.UPDOWNARROWKEY = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.MOUSE_POS = pygame.mouse.get_pos()
+
 
 
     def resetKeys(self):
         """Reset all keys
         """
-        self.WKEY, self.AKEY, self.SKEY, self.DKEY, self.ENTERKEY, self.BACKKEY, self.SPACEKEY, self.UPAKEY, self.UPDKEY, self.ESCAPEKEY, self.UPWKEY, self.UPSKEY, self.UPARROWKEY, self.DOWNARROwKEY, self.UPUPARROWKEY, self.UPDOWNARROWKEY\
-        = False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False
+        self.WKEY, self.AKEY, self.SKEY, self.DKEY, self.ENTERKEY, self.BACKKEY, self.SPACEKEY, self.UPAKEY, self.UPDKEY, self.ESCAPEKEY, self.UPWKEY, self.UPSKEY, self.UPARROWKEY, self.DOWNARROwKEY, self.UPUPARROWKEY, self.UPDOWNARROWKEY, self.MOUSE_POS\
+        = False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False
