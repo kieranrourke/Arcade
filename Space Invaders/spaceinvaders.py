@@ -9,9 +9,8 @@ import pathlib
 import json
 
 
-folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 # Creating SpaceInvaders
-
 
 class SpaceInvaders(Game):
     def __init__(self,):
@@ -20,6 +19,7 @@ class SpaceInvaders(Game):
         self.numEnemies = 4
         self.difficulty = 'Easy'
         mixer.music.load(folder_path+'background.wav')
+        mixer.music.set_volume(0.1)
         mixer.music.play(-1)
         self.menuBackground = pygame.image.load(folder_path+'menu.png')
         self.menuBackground = pygame.transform.scale(
@@ -39,16 +39,16 @@ class SpaceInvaders(Game):
     def createPlayer(self):
         self.player = Player(self)
 
-    def createEnemies(self,):
+    def createEnemies(self, numEnemies, height=None, width=None,):
         self.enemies = []
-        if self.difficulty == 'Easy':
-            self.numEnemies = 3
-        elif self.difficulty == 'Medium':
-            self.numEnemies = 4
+        if height and width:
+            self.numEnemies = numEnemies
+            for i in range(self.numEnemies):
+                self.enemies.append(Enemy(self, height=height, width=width))
         else:
-            self.numEnemies = 5
-        for i in range(self.numEnemies):
-            self.enemies.append(Enemy(self))
+            self.numEnemies = numEnemies
+            for i in range(self.numEnemies):
+                self.enemies.append(Enemy(self))
 
     def createBullet(self):
         self.bullet = Bullet(self)
@@ -57,25 +57,28 @@ class SpaceInvaders(Game):
         """
         Easy: Fast Player xChange, Slow Enemy movement, 3 Enemies, Fast bullet movement
         Medium: Normal Player xChange, Normal enemy movement, 4 Enemies, Normal bullet movement
-        Hard: Normal Player xChange, Faster enemy movement, 5 Enemies Normal bullet movement
+        Hard: Smaller Enemies, Normal Player xChange, Faster enemy movement, 5 Enemies Normal bullet movement
         """
         if self.difficulty == 'Easy':
+            self.createEnemies(numEnemies=3)
             self.player.xMovement = 10
             for i in range(self.numEnemies):
-                self.enemies[i].xMovement = 2
-            self.bullet.yChange = -10
+                self.enemies[i].xMovement = 6
+            self.bullet.yChange = -12
 
         elif self.difficulty == 'Medium':
-            self.player.xMovement = 8
+            self.createEnemies(numEnemies=4)
+            self.player.xMovement = 10
             for i in range(self.numEnemies):
-                self.enemies[i].xMovement = 4
-            self.bullet.yChange = -8
+                self.enemies[i].xMovement = 8
+            self.bullet.yChange = -10
 
         elif self.difficulty == 'Hard':
-            self.player.xMovement = 8
+            self.createEnemies(numEnemies=5, height=60, width=60)
+            self.player.xMovement = 10
             for i in range(self.numEnemies):
-                self.enemies[i].xMovement = 7
-            self.bullet.yChange = -8
+                self.enemies[i].xMovement = 10
+            self.bullet.yChange = -10
 
         for i in range(self.numEnemies):
             self.enemies[i].xChange = self.enemies[i].xMovement
@@ -107,6 +110,7 @@ class SpaceInvaders(Game):
         self.screen.blit(text, (160, 275))
         self.textInputMenu.displayLoop()
         self.inMenu = True
+        print(self.currentMenu)
 
     def menuLoop(self):
         while self.inMenu:
@@ -170,7 +174,6 @@ class SpaceInvaders(Game):
             self.clock = pygame.time.Clock()
             self.menuLoop()
             self.createPlayer()
-            self.createEnemies()
             self.createBullet()
             self.createScoreboard()
             self.applyDifficulty()
@@ -181,8 +184,9 @@ class SpaceInvaders(Game):
 class Player():
     def __init__(self, game):
         self.game = game
+        self.width, self.height = 150, 150
         self.image = pygame.image.load(folder_path+"player.png")
-        self.image = pygame.transform.scale(self.image, (150, 150))
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.xPos = 300
         self.yPos = 800
         self.xChange = 0
@@ -224,11 +228,13 @@ class Player():
 
 
 class Enemy():
-    def __init__(self, game):
+    def __init__(self, game, height=75, width=75):
         self.game = game
+        self.width = height
+        self.height = width
         self.image = pygame.image.load(folder_path+"enemy.png")
-        self.image = pygame.transform.scale(self.image, (100, 100))
-        self.xPos = random.randint(0, 500)
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.xPos = random.randint(0, 700)
         self.yPos = random.randint(1, 100)
         self.xChange = 0
         self.xMovement = 0
@@ -252,7 +258,7 @@ class Enemy():
         '''
         Hide enemies from the display
         '''
-        self.xPos = self.game.xBound + 1000
+        self.yPos = 0 
 
     def checkBoundary(self):
         if self.xPos <= 0:
@@ -271,7 +277,7 @@ class Enemy():
         '''
         Returns True if enemy has reached player
         '''
-        return self.yPos > self.game.yBound - player.height-75
+        return self.yPos > self.game.yBound - player.height-40
 
     def updatePos(self):
         self.xPos += self.xChange
@@ -282,9 +288,12 @@ class Bullet:
     def __init__(self, game):
         self.game = game
         self.shootingSound = mixer.Sound(folder_path+'shoot.wav')
+        self.shootingSound.set_volume(0.2)
         self.hitSound = mixer.Sound(folder_path+'invaderhit.wav')
+        self.hitSound.set_volume(0.1)
+        self.width, self.height = 10, 40
         self.image = pygame.image.load(folder_path+"bullet.png")
-        self.image = pygame.transform.scale(self.image, (150, 150))
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.xPos = 0
         self.yPos = 0
         self.yChange = -5
@@ -310,26 +319,26 @@ class Bullet:
         Fires a bullet based on the players positioning
         '''
         self.isFired = True
-        self.xPos = player.xPos
+        self.xPos = player.xPos + player.width/2
         self.yPos = player.yPos - 10
         self.shootingSound.play()
 
     def updatePos(self,):
         self.yPos += self.yChange
 
-    def isCollision(self, enemyX: float, enemyY: float,) -> bool:
+    def isCollision(self, enemy:object) -> bool:
         '''
         Checks to see if the bullet has hit an enemy
         '''
-        # Formula to check is a little sus but works decently
-        distance = math.sqrt(math.pow(enemyX-self.xPos, 2) +
-                             math.pow(enemyY-self.yPos, 2))
-        return distance < 65
+        bullet_rectangle = self.image.get_rect(topleft=(self.xPos, self.yPos)) 
+        enemy_rectangle = enemy.image.get_rect(topleft=(enemy.xPos, enemy.yPos))
+        return bullet_rectangle.colliderect(enemy_rectangle)
+
 
     def isHit(self, enemies: list, score: object):
         numEnemies = len(enemies)
         for i in range(numEnemies):
-            if self.isCollision(enemies[i].xPos, enemies[i].yPos):
+            if self.isCollision(enemies[i]):
                 self.hitSound.play()
                 self.resetBullet()
                 enemies[i].resetEnemy()

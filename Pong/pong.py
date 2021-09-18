@@ -80,7 +80,6 @@ class Pong (Game):
     def start_game(self):
         for i in range(3,0, -1):
             self.setMisc()
-
             red_text = self.countdown_font.render(str(i), True, (255,0,0))
             blue_text = self.countdown_font.render(str(i), True, (0,0,255))
             size = red_text.get_size()
@@ -126,7 +125,7 @@ class Pong (Game):
         self.blue_player.draw_player()
         self.pong_ball.draw_ball()
         self.reset_button.draw_button()
-        # self.clock.tick(60)
+        self.clock.tick(60)
         pygame.display.update()
     
     def update_objects(self):
@@ -181,8 +180,10 @@ class Ball():
         self.game = game
         self.x_position = self.game.yBound/2
         self.y_position = self.game.xBound/2 
-        self.x_change = -7
-        self.y_change =  3
+        self.x_speed = -12
+        self.y_speed = 5
+        self.x_change = self.x_speed
+        self.y_change =  self.y_speed
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
@@ -258,13 +259,13 @@ class Ball():
         self.x_position = self.game.xBound/2
         self.y_position = random.randint(100, self.game.yBound-100) 
         if 1 == random.randint(0,1):
-            self.x_change = -6
+            self.x_change = -self.x_speed
         else:
-            self.x_change = 6
+            self.x_change = self.x_speed
         if 1 == random.randint(0,1):
-            self.y_change = 3
+            self.y_change = self.y_speed
         else:
-            self.y_change = -3
+            self.y_change = -self.y_speed
 
 class Button:
     def __init__(self, game, x, y, text, text_size = 32) -> None:

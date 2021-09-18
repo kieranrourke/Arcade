@@ -6,7 +6,7 @@ from pygame import mixer
 import pathlib
 
 # Fix Python/Github error
-folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 
 # Creating the Game Class
 # ! Game class should be used/adjusted for other games in the aracde
@@ -15,7 +15,6 @@ folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
 class Game:
     """General Game class
     """
-
     def __init__(self, xBound, yBound, caption, icon, backgroundFileName:str):
         self.caption = caption
         self.icon = icon

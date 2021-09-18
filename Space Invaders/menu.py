@@ -297,10 +297,13 @@ class TextInput(Menu):
                 self.game.running, self.game.inMenu, self.showDisplay, self.game.inGame = False, False, False, False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    firstKey = self.name[0].upper()
-                    self.name = firstKey + self.name[1:] + ':'
-                    self.saveScore()
-                    self.returnToMainMenu()
+                    try:
+                        self.name = self.name[0].upper() + self.name[1:]+':'
+                        self.saveScore()
+                        self.returnToMainMenu()
+                    except IndexError:
+                        self.returnToMainMenu()
+                        pass  # Raises on empty name
                 # Converts pygame_event to the actualy key name pressed
                 keyPressed = pygame.key.name(event.key)
                 self.inputs[keyPressed] = True
@@ -312,6 +315,7 @@ class TextInput(Menu):
         """Saves the score of the player
         """
         # Only saves score if it is higher than their previous score
+        print('s')
         if self.game.scores.get(self.name):
             if self.game.scores[self.name] < self.game.scoreboard.score:
                 self.game.scores[self.name] = self.game.scoreboard.score
