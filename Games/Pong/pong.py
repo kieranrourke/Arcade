@@ -2,12 +2,11 @@ import pygame
 import pathlib
 import os
 import sys
+from ..game import Game, Button
 sys.path.append(pathlib.Path(__file__).parent.parent.absolute())
-from game import Game
 import math
 import random
 import time
-
 
 
 class Pong (Game):
@@ -18,7 +17,9 @@ class Pong (Game):
         self.pong_ball_image = pygame.transform.scale(
             self.pong_ball_image, (30, 30))
 
-        Game.__init__(self, 800, 800, "pong", self.pong_ball_image, 'pong_background.png')
+        self.background_image = pygame.image.load(folder_path+'pong_background.png')
+
+        Game.__init__(self, 800, 800, "pong", self.pong_ball_image, self.background_image)
 
         self.default_font = pygame.font.Font('freesansbold.ttf', 32) 
         self.countdown_font = pygame.font.SysFont("Arial", 128)
@@ -68,11 +69,14 @@ class Pong (Game):
                     self.reset_game()
 
             self.update_objects()
-            collision = []
-            collision.append(self.pong_ball.is_collision(self.blue_player, False))
-            collision.append(self.pong_ball.is_collision(self.red_player, True))
-            if True in collision:
-                self.pong_ball.collision()
+
+            collision = self.pong_ball.is_collision(self.blue_player, False)
+            if collision:
+                self.pong_ball.collision(self.blue_player)
+            collision = self.pong_ball.is_collision(self.red_player, True)
+            if collision:
+                self.pong_ball.collision(self.red_player)
+
             self.draw_score()
             self.resetKeys()            
             self.update_display()
@@ -87,7 +91,7 @@ class Pong (Game):
             self.draw(blue_text, self.xBound/2 - size[0] - 50, self.yBound/2 - 150)
 
             pygame.display.update()
-            time.sleep(1)
+            time.sleep(0.5)
             
     def reset_game(self):
         self.reset_objects()
@@ -105,13 +109,12 @@ class Pong (Game):
         if self.pong_ball.x_position > self.xBound + offset:  # Blue Score
             self.blue_score += 1
             self.pong_ball.reset_ball()
-            time.sleep(1)
             self.reset_objects()
+            time.sleep(0.5)
         elif self.pong_ball.x_position < 0 - offset:  # Red Score
             self.red_score += 1
-            self.pong_ball.reset_ball()
-            time.sleep(1)
             self.reset_objects()
+            time.sleep(0.5)
 
     def draw_score(self):
         font = self.default_font
@@ -179,13 +182,19 @@ class Ball():
         self.image = image
         self.game = game
         self.x_position = self.game.yBound/2
-        self.y_position = self.game.xBound/2 
-        self.x_speed = -12
-        self.y_speed = 5
+        self.y_position = self.game.xBound/2
+
+        # Storing the different speeds for the ball 
+        self.player_collision_speed = {'x': 11, 'y': 5}
+        self.reset_speed = {'x': 8, 'y': 3}
+        self.x_speed = -self.player_collision_speed['x']
+        self.y_speed =  self.player_collision_speed['y']
         self.x_change = self.x_speed
         self.y_change =  self.y_speed
+
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.MAX_BOUNCE_ANGLE = 3 * (math.pi/12)  # 1.3 rad/75*
 
     def draw_ball(self):
         self.game.draw(self.image, self.x_position, self.y_position)
@@ -203,42 +212,49 @@ class Ball():
         Returns:
             bool : Returns if the player has collided  
         """
-        # print(self.y_position - self.height, player.y_position, player.y_position + player.height)
-        # print(self.x_position, player.x_position, player.x_position + player.width)
-        if not red:
-            if ((self.x_position >= player.x_position 
-                and self.x_position <= player.x_position + player.width)
-                and ((self.y_position >= player.y_position
-                and self.y_position <= player.y_position + player.height)
-                or (self.y_position + self.height >= player.y_position
-                and self.y_position + self.height <= player.y_position + player.height))):
-                    # print(self.y_position - self.height, player.y_position, player.y_position + player.height)
-                    # print(self.x_position, player.x_position, player.x_position + player.width)
-                    return True
-        else:
-            # print(self.y_position, player.y_position, player.y_position + player.height) 
-            # print(self.x_position + self.width, player.x_position - player.width) 
-            if  ((self.x_position + self.width >= player.x_position - player.width)
-                and ((self.y_position >= player.y_position 
-                and self.y_position <= player.y_position + player.height)
-                or (self.y_position + self.height >= player.y_position
-                and self.y_position + self.height <= player.y_position + player.height))):
-                    return True
-        return False
-            
-
-    def collision(self):
+        ball_rectange = self.image.get_rect(topleft=(self.x_position, self.y_position))
+        player_rectange = player.image.get_rect(topleft=(player.x_position, player.y_position))
+        return ball_rectange.colliderect(player_rectange)
+ 
+    def collision(self, player:object):
         if self.x_position > self.game.xBound/2:
             self.x_position -= 31
         else:
             self.x_position += 31
-        self.negative_reciprical(hit_type="player")
+        self.collision_adjustment(hit_type="player", player=player)
 
-    def negative_reciprical(self, hit_type):
+    def collision_adjustment(self, hit_type, player=None):
         if hit_type == "boundary":
             self.x_change, self.y_change = self.x_change, -self.y_change
         elif hit_type == "player":
-            self.x_change, self.y_change = -self.x_change, self.y_change
+            self.x_change, self.y_change = self.player_collision_speed['x'], self.player_collision_speed['y']
+            self.ball_collision_speed(player)
+
+    def ball_collision_speed(self, player:object):
+        """Generates the angle of collision between player and ball then updates player speed
+
+        Args:
+            player (object): player that hit the ball 
+        """
+        middle_ball = self.y_position + self.height/2
+        middle_player = player.y_position + player.height/2 
+        magnitude_speed = math.hypot(self.x_change, self.y_change) 
+
+        relative_y_intersect = middle_ball - middle_player
+        bounce_angle = relative_y_intersect/(player.height/2)
+        # To stop the angle from surpassing the maximum angle 
+        if bounce_angle > 1:
+            bounce_angle = 1
+        elif bounce_angle < -1:
+            bounce_angle = -1
+
+        
+        bounce_angle *= self.MAX_BOUNCE_ANGLE
+
+        if player.x_position > 200:  # Blue Player
+            self.x_change, self.y_change = -magnitude_speed*math.cos(bounce_angle), -magnitude_speed*-math.sin(bounce_angle)
+        else:
+            self.x_change, self.y_change = magnitude_speed*math.cos(bounce_angle), -magnitude_speed*-math.sin(bounce_angle)
 
     def update_postion(self):
         self.check_boundary()
@@ -249,15 +265,16 @@ class Ball():
         offset = 20  #This leaves room for saves along the x axis
         if self.y_position < 0: 
             self.y_position += 10
-            self.negative_reciprical(hit_type="boundary")
+            self.collision_adjustment(hit_type="boundary")
         elif self.y_position > self.game.yBound or self.y_position > self.game.yBound - self.height:
             self.y_position -= 10
-            self.negative_reciprical(hit_type="boundary")
+            self.collision_adjustment(hit_type="boundary")
         
     
     def reset_ball(self):
         self.x_position = self.game.xBound/2
-        self.y_position = random.randint(100, self.game.yBound-100) 
+        self.y_position = random.randint(self.game.yBound/2-50, self.game.yBound/2+50)
+        self.x_speed, self.y_speed = self.reset_speed['x'], self.reset_speed['y']
         if 1 == random.randint(0,1):
             self.x_change = -self.x_speed
         else:
@@ -266,36 +283,6 @@ class Ball():
             self.y_change = self.y_speed
         else:
             self.y_change = -self.y_speed
-
-class Button:
-    def __init__(self, game, x, y, text, text_size = 32) -> None:
-        self.x = x
-        self.y = y
-        self.text_size = text_size
-        self.game = game
-        self.text = text
-
-        self.generate_button()
-
-    def generate_button(self):
-        self.font = pygame.font.SysFont('Arial', self.text_size)
-        self.button_text = self.font.render(self.text, True, (128,128,128))
-        self.size = self.button_text.get_size()
-        self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
-    
-    def draw_button(self):
-        self.game.draw(self.button_text, self.x, self.y)
-    
-    def is_clicked(self, pos: tuple) -> bool:
-        """Tests if a point is inside the button
-
-        Args:
-            pos (Tuple): Click position
-
-        Returns:
-            bool: Returns if its in the button 
-        """
-        return self.rect.collidepoint(pos[0], pos[1])
 
 
 if __name__ == '__main__':

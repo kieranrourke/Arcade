@@ -6,23 +6,23 @@ from pygame import mixer
 import pathlib
 
 # Fix Python/Github error
-folder_path = str(pathlib.Path(__file__).parent.absolute()) + '\\'
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 
 # Creating the Game Class
 # ! Game class should be used/adjusted for other games in the aracde
 
+pygame.init()
 
 class Game:
     """General Game class
     """
-
-    def __init__(self, xBound, yBound, caption, icon, backgroundFileName:str):
+    def __init__(self, xBound, yBound, caption, icon, background):
         self.caption = caption
         self.icon = icon
         self.xBound = xBound
         self.yBound = yBound
         self.font = pygame.font.Font('freesansbold.ttf', 64)
-        self.background = pygame.image.load(folder_path + backgroundFileName)
+        self.background = background 
         self.background = pygame.transform.scale(
             self.background, (xBound, yBound))
         # Sets up the game loop Variables
@@ -38,6 +38,7 @@ class Game:
         self.SPACEKEY = False
         self.ESCAPEKEY = False
         self.UPAKEY, self.UPDKEY, self.UPWKEY, self.UPSKEY = False, False, False, False
+        self.MOUSE_POS = False
         self.clock = pygame.time.Clock()
 
     def setMisc(self):
@@ -97,10 +98,44 @@ class Game:
                     self.UPUPARROWKEY = True
                 elif event.key == pygame.K_DOWN:
                     self.UPDOWNARROWKEY = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.MOUSE_POS = pygame.mouse.get_pos()
+
 
 
     def resetKeys(self):
         """Reset all keys
         """
-        self.WKEY, self.AKEY, self.SKEY, self.DKEY, self.ENTERKEY, self.BACKKEY, self.SPACEKEY, self.UPAKEY, self.UPDKEY, self.ESCAPEKEY, self.UPWKEY, self.UPSKEY, self.UPARROWKEY, self.DOWNARROwKEY, self.UPUPARROWKEY, self.UPDOWNARROWKEY\
-        = False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False
+        self.WKEY, self.AKEY, self.SKEY, self.DKEY, self.ENTERKEY, self.BACKKEY, self.SPACEKEY, self.UPAKEY, self.UPDKEY, self.ESCAPEKEY, self.UPWKEY, self.UPSKEY, self.UPARROWKEY, self.DOWNARROwKEY, self.UPUPARROWKEY, self.UPDOWNARROWKEY, self.MOUSE_POS\
+        = False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False
+
+class Button:
+    def __init__(self, game, x, y, text, color=(128,128,128), text_size = 32) -> None:
+        self.x = x
+        self.y = y
+        self.text_size = text_size
+        self.game = game
+        self.text = text
+        self.color = color
+
+        self.generate_button()
+
+    def generate_button(self):
+        self.font = pygame.font.SysFont('Arial', self.text_size)
+        self.button_text = self.font.render(self.text, True, self.color)
+        self.size = self.button_text.get_size()
+        self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
+    
+    def draw_button(self):
+        self.game.draw(self.button_text, self.x, self.y)
+   
+    def is_clicked(self, pos: tuple) -> bool:
+        """Tests if a point is inside the button
+
+        Args:
+            pos (Tuple): Click position
+
+        Returns:
+            bool: Returns if its in the button 
+        """
+        return self.rect.collidepoint(pos[0], pos[1])

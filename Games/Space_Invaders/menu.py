@@ -1,6 +1,5 @@
 import pygame
 from pygame import mixer
-from game import Game
 import json
 
 # ! Menu class should be used/adjusted for other games in the aracde

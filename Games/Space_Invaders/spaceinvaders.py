@@ -3,8 +3,10 @@ import math
 
 import pygame
 from pygame import mixer
-from game import Game
-from menu import *
+from ..game import Game
+from .menu import *
+import sys
+import os
 import pathlib
 import json
 
@@ -14,8 +16,9 @@ folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 
 class SpaceInvaders(Game):
     def __init__(self,):
+
         Game.__init__(self, 800, 800, 'Space Invaders',
-                      pygame.image.load(folder_path+"ufo.png"), 'background.png')
+                      pygame.image.load(folder_path+"ufo.png"), pygame.image.load(folder_path+'background.png'))
         self.numEnemies = 4
         self.difficulty = 'Easy'
         mixer.music.load(folder_path+'background.wav')
