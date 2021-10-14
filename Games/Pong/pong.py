@@ -7,10 +7,12 @@ sys.path.append(pathlib.Path(__file__).parent.parent.absolute())
 import math
 import random
 import time
+import pdb
 
 
-class Pong (Game):
-    def __init__ (self,):
+class Pong ():
+    def __init__ (self, game):
+        self.game = game
         folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
         
         self.pong_ball_image = pygame.image.load(folder_path+'pong_ball.png')
@@ -18,8 +20,7 @@ class Pong (Game):
             self.pong_ball_image, (30, 30))
 
         self.background_image = pygame.image.load(folder_path+'pong_background.png')
-
-        Game.__init__(self, 800, 800, "pong", self.pong_ball_image, self.background_image)
+        self.background_image = pygame.transform.scale(self.background_image, (self.game.xBound, self.game.yBound))
 
         self.default_font = pygame.font.Font('freesansbold.ttf', 32) 
         self.countdown_font = pygame.font.SysFont("Arial", 128)
@@ -32,14 +33,23 @@ class Pong (Game):
         self.red_player_image = pygame.transform.scale(
             self.red_player_image, (10, 100))
         
-        self.blue_player = Player(self, self.blue_player_image,0)
-        self.red_player = Player(self, self.red_player_image, self.xBound-10)
-        self.pong_ball = Ball(self, self.pong_ball_image)        
+        self.blue_player = Player(game, self.blue_player_image,0)
+        self.red_player = Player(game, self.red_player_image, self.game.xBound-10)
+        self.pong_ball = Ball(game, self.pong_ball_image)        
+
         self.reset_button = Button(
-            game=self,
-            x=self.xBound-150,
+            game=game,
+            x=self.game.xBound-150,
             y=25, 
             text="Reset Game",
+            text_size=24
+        )
+
+        self.quit_button = Button(
+            game=game,
+            x=0+150,
+            y=25,
+            text="Quit",
             text_size=24
         )
 
@@ -48,25 +58,27 @@ class Pong (Game):
 
     def game_loop(self, ):
         self.start_game()
-        while self.inGame:
-            self.setMisc()
-            self.checkEvents()
+        while self.game.inGame:
+            self.game.setMisc()
+            self.game.checkEvents()
 
-            if self.WKEY:
+            if self.game.WKEY:
                 self.blue_player.move_up()
-            elif self.SKEY:
+            elif self.game.SKEY:
                 self.blue_player.move_down()
-            elif self.UPWKEY or self.UPSKEY:
+            elif self.game.UPWKEY or self.game.UPSKEY:
                 self.blue_player.stop_player()
-            elif self.UPARROWKEY:
+            elif self.game.UPARROWKEY:
                 self.red_player.move_up()
-            elif self.DOWNARROwKEY:
+            elif self.game.DOWNARROwKEY:
                 self.red_player.move_down()
-            elif self.UPUPARROWKEY or self.UPDOWNARROWKEY:
+            elif self.game.UPUPARROWKEY or self.game.UPDOWNARROWKEY:
                 self.red_player.stop_player()
-            elif self.MOUSE_POS:
-                if self.reset_button.is_clicked(self.MOUSE_POS):
+            elif self.game.MOUSE_POS:
+                if self.reset_button.is_clicked(self.game.MOUSE_POS):
                     self.reset_game()
+                elif self.quit_button.is_clicked(self.game.MOUSE_POS):
+                    self.game.inGame = False
 
             self.update_objects()
 
@@ -78,17 +90,19 @@ class Pong (Game):
                 self.pong_ball.collision(self.red_player)
 
             self.draw_score()
-            self.resetKeys()            
+            self.game.resetKeys()            
             self.update_display()
     
     def start_game(self):
+        self.game.inGame=True
+        self.game.background = self.background_image
         for i in range(3,0, -1):
-            self.setMisc()
+            self.game.setMisc()
             red_text = self.countdown_font.render(str(i), True, (255,0,0))
             blue_text = self.countdown_font.render(str(i), True, (0,0,255))
             size = red_text.get_size()
-            self.draw(red_text, self.xBound/2, self.yBound/2 - 150)
-            self.draw(blue_text, self.xBound/2 - size[0] - 50, self.yBound/2 - 150)
+            self.game.draw(red_text, self.game.xBound/2, self.game.yBound/2 - 150)
+            self.game.draw(blue_text, self.game.xBound/2 - size[0] - 50, self.game.yBound/2 - 150)
 
             pygame.display.update()
             time.sleep(0.5)
@@ -106,7 +120,7 @@ class Pong (Game):
 
     def is_score(self):
         offset = 20
-        if self.pong_ball.x_position > self.xBound + offset:  # Blue Score
+        if self.pong_ball.x_position > self.game.xBound + offset:  # Blue Score
             self.blue_score += 1
             self.pong_ball.reset_ball()
             self.reset_objects()
@@ -120,15 +134,16 @@ class Pong (Game):
         font = self.default_font
         blue_score = font.render(str(self.blue_score), True, (0,255,255))
         red_score = font.render(str(self.red_score), True, (255,0,0))
-        self.draw(blue_score, self.xBound/2 - 100, 10)
-        self.draw(red_score, self.xBound/2 + 35, 10)
+        self.game.draw(blue_score, self.game.xBound/2 - 100, 10)
+        self.game.draw(red_score, self.game.xBound/2 + 35, 10)
 
     def update_display(self):
         self.red_player.draw_player()
         self.blue_player.draw_player()
         self.pong_ball.draw_ball()
         self.reset_button.draw_button()
-        self.clock.tick(60)
+        self.quit_button.draw_button()
+        self.game.clock.tick(60)
         pygame.display.update()
     
     def update_objects(self):

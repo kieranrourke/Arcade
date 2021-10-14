@@ -9,52 +9,57 @@ import sys
 import os
 import pathlib
 import json
+import pdb
 
 
-folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 # Creating SpaceInvaders
 
-class SpaceInvaders(Game):
-    def __init__(self,):
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
+class SpaceInvaders():
+    def __init__(self, game):
 
-        Game.__init__(self, 800, 800, 'Space Invaders',
-                      pygame.image.load(folder_path+"ufo.png"), pygame.image.load(folder_path+'background.png'))
+        self.game = game
+
         self.numEnemies = 4
         self.difficulty = 'Easy'
+
         mixer.music.load(folder_path+'background.wav')
         mixer.music.set_volume(0.1)
-        mixer.music.play(-1)
+        self.background = pygame.image.load(folder_path+"background.png")
+        self.background = pygame.transform.scale(self.background, (self.game.xBound, self.game.yBound))
+
         self.menuBackground = pygame.image.load(folder_path+'menu.png')
         self.menuBackground = pygame.transform.scale(
-            self.menuBackground, (self.xBound, self.yBound))
+            self.menuBackground, (self.game.xBound, self.game.yBound))
         self.currentMenu = 'Main'
-        self.mainMenu = MainMenu(self, self.menuBackground, [220, 400])
-        self.helpMenu = HelpMenu(self, self.background,)
-        self.highscoresMenu = HighscoresMenu(self, self.background)
-        self.difficultyMenu = DifficultyMenu(self, self.background)
-        self.textInputMenu = TextInput(self, self.background)
+        self.mainMenu = MainMenu(game, self, self.menuBackground, [220, 400])
+        self.helpMenu = HelpMenu(game, self, self.background,)
+        self.highscoresMenu = HighscoresMenu(game, self, self.background)
+        self.difficultyMenu = DifficultyMenu(game, self, self.background)
+        self.textInputMenu = TextInput(game, self, self.background)
         try:
             with open("highscores.json", 'r') as f:
                 self.scores = json.load(f)
         except:
             self.scores = {}
+        
 
     def createPlayer(self):
-        self.player = Player(self)
+        self.player = Player(self.game)
 
     def createEnemies(self, numEnemies, height=None, width=None,):
         self.enemies = []
         if height and width:
             self.numEnemies = numEnemies
             for i in range(self.numEnemies):
-                self.enemies.append(Enemy(self, height=height, width=width))
+                self.enemies.append(Enemy(self.game, height=height, width=width))
         else:
             self.numEnemies = numEnemies
             for i in range(self.numEnemies):
-                self.enemies.append(Enemy(self))
+                self.enemies.append(Enemy(self.game))
 
     def createBullet(self):
-        self.bullet = Bullet(self)
+        self.bullet = Bullet(self.game)
 
     def applyDifficulty(self):
         """
@@ -87,18 +92,18 @@ class SpaceInvaders(Game):
             self.enemies[i].xChange = self.enemies[i].xMovement
 
     def createScoreboard(self):
-        self.scoreboard = Scoreboard(self)
+        self.scoreboard = Scoreboard(self.game)
 
     def updateDisplay(self):
         '''
         Updates Display as well as draws the objects used
         '''
-        self.draw(self.player.image, self.player.xPos, self.player.yPos)
+        self.game.draw(self.player.image, self.player.xPos, self.player.yPos)
 
         if self.bullet.isFired:
-            self.draw(self.bullet.image, self.bullet.xPos, self.bullet.yPos)
+            self.game.draw(self.bullet.image, self.bullet.xPos, self.bullet.yPos)
         for i in range(self.numEnemies):
-            self.draw(self.enemies[i].image,
+            self.game.draw(self.enemies[i].image,
                       self.enemies[i].xPos, self.enemies[i].yPos)
 
         self.scoreboard.showScore()
@@ -108,15 +113,14 @@ class SpaceInvaders(Game):
         '''
         Intiate game over sequence
         '''
-        text = self.font.render(
+        text = self.game.font.render(
             f"GAME OVER: {self.scoreboard.score}", True, (255, 255, 255))
-        self.screen.blit(text, (160, 275))
+        self.game.screen.blit(text, (160, 275))
         self.textInputMenu.displayLoop()
-        self.inMenu = True
-        print(self.currentMenu)
+        self.game.inMenu = True
 
     def menuLoop(self):
-        while self.inMenu:
+        while self.game.inMenu:
             if self.currentMenu == 'Main':
                 self.mainMenu.displayLoop()
             elif self.currentMenu == 'Choose Difficulty':
@@ -126,22 +130,30 @@ class SpaceInvaders(Game):
             elif self.currentMenu == 'Help':
                 self.helpMenu.displayLoop()
             elif self.currentMenu == 'Quit':
-                self.running, self.inMenu, self.inGame = False, False
+                self.running, self.inMenu, self.inGame = False, False, False
             else:
-                self.inGame = True
-                self.inMenu = False
+                self.game.inGame = True
+                self.game.inMenu = False
+
+    def start_game(self):
+        self.game.background = self.background
+        self.game.inMenu = True
+        self.game.running = True
+        self.currentMenu = 'Main'
+        mixer.music.play(-1)
+        self.game_loop()
 
     def gameLoop(self):
-        while self.inGame:
-            self.setMisc()
+        while self.game.inGame:
+            self.game.setMisc()
 
             # Checking the user input
-            self.checkEvents()
+            self.game.checkEvents()
 
             # Shooting/Moving the image based on user input
-            if self.AKEY or self.DKEY or self.UPAKEY or self.UPDKEY:
+            if self.game.AKEY or self.game.DKEY or self.game.UPAKEY or self.game.UPDKEY:
                 self.player.changeDirection()
-            elif self.SPACEKEY:
+            elif self.game.SPACEKEY:
                 self.bullet.fireBullet(self.player)
 
             # Updating Player position and checking boundaries
@@ -168,13 +180,13 @@ class SpaceInvaders(Game):
 
             # Update Display
             self.updateDisplay()
-            self.resetKeys()
-            self.clock.tick(60)
+            self.game.resetKeys()
+            self.game.clock.tick(60)
 
     def game_loop(self,):
-        self.running = True
-        while self.running:
-            self.clock = pygame.time.Clock()
+        self.game.running = True
+        self.clock = self.game.clock 
+        while self.game.running:
             self.menuLoop()
             self.createPlayer()
             self.createBullet()

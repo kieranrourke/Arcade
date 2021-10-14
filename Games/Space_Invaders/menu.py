@@ -1,19 +1,21 @@
 import pygame
+import pdb
 from pygame import mixer
 import json
 
-# ! Menu class should be used/adjusted for other games in the aracde
 class Menu():
     """General Menu Class for the menus
     """
 
-    def __init__(self, game, background, states: list, cursorLocation: list):
+    def __init__(self, game, space_invaders, background, states: list, cursorLocation: list):
         self.game = game
+        self.space_invaders = space_invaders
         self.background = background
         self.defaultFont = pygame.font.Font('freesansbold.ttf', 32)
         self.bigDefaultFont = pygame.font.Font('freesansbold.ttf', 60)
         self.showDisplay = False
-        # Important variable that will allow the program to know how to move the cursor
+
+        # Variable that will allow the program to know how to move the cursor
         self.stateDifference = 82
 
         # States are used for menus that need user selection so the program knows what their cursor is on
@@ -107,15 +109,15 @@ class Menu():
 
     def exitNotMainMenu(self):
         self.showDisplay = False
-        self.game.mainMenu.showDisplay = True
-        self.game.currentMenu = 'Main'
+        self.space_invaders.mainMenu.showDisplay = True
+        self.space_invaders.currentMenu = 'Main'
 
 
 class MainMenu(Menu,):
-    def __init__(self, game: object, background, cursorLocation: list):
+    def __init__(self, game: object, space_invaders, background, cursorLocation: list):
         self.states = ['New Game', 'Choose Difficulty',
                        'Highscores', 'Help', 'Quit']
-        Menu.__init__(self, game, background, self.states, cursorLocation)
+        Menu.__init__(self, game, space_invaders, background, self.states, cursorLocation)
 
     def displayLoop(self):
         self.showDisplay = True
@@ -147,25 +149,25 @@ class MainMenu(Menu,):
         if self.state == 'New Game':
             pass
         elif self.state == 'Choose Difficulty':
-            self.game.difficultyMenu.showDisplay = True
+            self.space_invaders.difficultyMenu.showDisplay = True
         elif self.state == 'Highscores':
-            self.game.highscoresMenu.showDisplay = True
+            self.space_invaders.highscoresMenu.showDisplay = True
         elif self.state == 'Help':
-            self.game.helpMenu.showDisplay = True
+            self.space_invaders.helpMenu.showDisplay = True
         elif self.state == 'Quit':
             self.quit()
 
-        self.game.currentMenu = self.state
+        self.space_invaders.currentMenu = self.state
 
     def quit(self):
         self.game.running, self.game.inMenu, self.showDisplay, self.game.inGame = False, False, False, False
 
 
 class DifficultyMenu(Menu):
-    def __init__(self, game, background):
+    def __init__(self, game, space_invaders, background):
         self.states = ['Easy', 'Medium', 'Hard']
         self.game = game
-        Menu.__init__(self, game, background, self.states, [
+        Menu.__init__(self, game, space_invaders, background, self.states, [
                       self.game.xBound/2-100, self.game.yBound/2-45])
         self.font = pygame.font.Font('freesansbold.ttf', 45)
 
@@ -192,13 +194,13 @@ class DifficultyMenu(Menu):
             self.game.resetKeys()
 
     def enterMenu(self):
-        self.game.difficulty = self.state
+        self.space_invaders.difficulty = self.state
         self.exitNotMainMenu()
 
 
 class HighscoresMenu(Menu):
-    def __init__(self, game, background):
-        Menu.__init__(self, game, background, None, None)
+    def __init__(self, game, space_invaders, background):
+        Menu.__init__(self, game, space_invaders, background, None, None)
         self.yDifference = 50
         self.font = pygame.font.Font('freesansbold.ttf', 60)
 
@@ -222,7 +224,7 @@ class HighscoresMenu(Menu):
         self.xPos = 300
         self.yPos = self.game.yBound/2 - 200
         self.game.scores = dict(
-            sorted(self.game.scores.items(), key=lambda item: item[1], reverse=True))
+            sorted(self.space_invaders.scores.items(), key=lambda item: item[1], reverse=True))
         self.keys = list(self.game.scores.keys())
         self.values = list(self.game.scores.values())
 
@@ -241,8 +243,8 @@ class HighscoresMenu(Menu):
 
 
 class HelpMenu(Menu):
-    def __init__(self, game, background):
-        Menu.__init__(self, game, background, None, None)
+    def __init__(self, game, space_invaders, background):
+        Menu.__init__(self, game, space_invaders, background, None, None)
         self.text = "Use keys A and D to Move,To shoot the gun use spacebar,You can only have 1 bullet shot at a time"
         self.font = pygame.font.Font('freesansbold.ttf', 35)
         self.state = False
@@ -277,8 +279,8 @@ class HelpMenu(Menu):
 
 
 class TextInput(Menu):
-    def __init__(self, game, background):
-        Menu.__init__(self, game, background, None, None)
+    def __init__(self, game, space_invaders, background):
+        Menu.__init__(self, game, space_invaders, background, None, None)
         self.game = game
         self.inputs = {}
         self.name = ''
@@ -287,8 +289,8 @@ class TextInput(Menu):
     def returnToMainMenu(self):
         self.game.inGame = False
         self.showDisplay = False
-        self.game.mainMenu.showDisplay = True
-        self.game.currentMenu = 'Main'
+        self.space_invaders.mainMenu.showDisplay = True
+        self.space_invaders.currentMenu = 'Main'
 
     def checkInput(self):
         for event in pygame.event.get():
@@ -314,16 +316,15 @@ class TextInput(Menu):
         """Saves the score of the player
         """
         # Only saves score if it is higher than their previous score
-        print('s')
-        if self.game.scores.get(self.name):
-            if self.game.scores[self.name] < self.game.scoreboard.score:
-                self.game.scores[self.name] = self.game.scoreboard.score
+        if self.space_invaders.scores.get(self.name):
+            if self.space_invaders.scores[self.name] < self.space_invaders.scoreboard.score:
+                self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
                 with open("highscores.json", 'w+') as f:
-                    json.dump(self.game.scores, f)
+                    json.dump(self.space_invaders.scores, f)
         else:
-            self.game.scores[self.name] = self.game.scoreboard.score
+            self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
             with open("highscores.json", "w+") as f:
-                json.dump(self.game.scores, f)
+                json.dump(self.space_invaders.scores, f)
 
     def displayLoop(self):
         self.name = ''
