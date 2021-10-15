@@ -46,6 +46,7 @@ pygame, json, math, random
 
 Usage 
 ---------
+<pre><code> This is a code block:</p>
 
 >>>  main.py
 The game window will then appear
