@@ -19,8 +19,10 @@ The games use the python library pygame to display graphics and manage sounds.
 Installation
 ---------------
 
-Python 3.7.4 or later must be installed.      
-The Pygame library is also required.     
+Python 3.7.4 or later must be installed.                
+https://www.python.org/downloads/
+              
+The Pygame library is also required.                    
 To install run:
 
 <pre><code> pip install pygame </code></pre>
