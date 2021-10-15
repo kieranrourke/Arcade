@@ -13,7 +13,7 @@ class Menu():
         self.defaultFont = pygame.font.Font('freesansbold.ttf', 32)
         self.bigDefaultFont = pygame.font.Font('freesansbold.ttf', 60)
         self.showDisplay = False
-        self.folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
+        self.folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/Utils/'
 
         # Variable that will allow the program to know how to move the cursor
         self.stateDifference = 82

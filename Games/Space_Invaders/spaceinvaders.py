@@ -31,7 +31,7 @@ class SpaceInvaders():
         self.difficultyMenu = DifficultyMenu(game, self, self.background)
         self.textInputMenu = TextInput(game, self, self.background)
         try:
-            with open("highscores.json", 'r') as f:
+            with open(folder_path+"highscores.json", 'r') as f:
                 self.scores = json.load(f)
         except:
             self.scores = {}
