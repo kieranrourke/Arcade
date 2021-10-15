@@ -1,20 +1,15 @@
 import random
-import math
-
 import pygame
 from pygame import mixer
 from ..game import Game
 from .menu import *
-import sys
-import os
 import pathlib
 import json
-import pdb
 
 
 # Creating SpaceInvaders
 
-folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
+folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/Utils/'
 class SpaceInvaders():
     def __init__(self, game):
 
@@ -23,8 +18,6 @@ class SpaceInvaders():
         self.numEnemies = 4
         self.difficulty = 'Easy'
 
-        mixer.music.load(folder_path+'background.wav')
-        mixer.music.set_volume(0.1)
         self.background = pygame.image.load(folder_path+"background.png")
         self.background = pygame.transform.scale(self.background, (self.game.xBound, self.game.yBound))
 
@@ -140,6 +133,8 @@ class SpaceInvaders():
         self.game.inMenu = True
         self.game.running = True
         self.currentMenu = 'Main'
+        mixer.music.load(folder_path+'background.wav')
+        mixer.music.set_volume(0.1)
         mixer.music.play(-1)
         self.game_loop()
 

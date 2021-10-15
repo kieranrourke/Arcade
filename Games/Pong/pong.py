@@ -1,32 +1,31 @@
 import pygame
+from pygame import mixer
 import pathlib
-import os
 import sys
 from ..game import Game, Button
 sys.path.append(pathlib.Path(__file__).parent.parent.absolute())
 import math
 import random
 import time
-import pdb
 
 
 class Pong ():
     def __init__ (self, game):
         self.game = game
-        folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
+        self.folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/Utils/'
         
-        self.pong_ball_image = pygame.image.load(folder_path+'pong_ball.png')
+        self.pong_ball_image = pygame.image.load(self.folder_path+'pong_ball.png')
         self.pong_ball_image = pygame.transform.scale(
             self.pong_ball_image, (30, 30))
 
-        self.background_image = pygame.image.load(folder_path+'pong_background.png')
+        self.background_image = pygame.image.load(self.folder_path+'pong_background.png')
         self.background_image = pygame.transform.scale(self.background_image, (self.game.xBound, self.game.yBound))
 
         self.default_font = pygame.font.Font('freesansbold.ttf', 32) 
         self.countdown_font = pygame.font.SysFont("Arial", 128)
         
-        self.blue_player_image = pygame.image.load(folder_path+'blue_rectangle.png')
-        self.red_player_image = pygame.image.load(folder_path+'red_rectangle.png')
+        self.blue_player_image = pygame.image.load(self.folder_path+'blue_rectangle.png')
+        self.red_player_image = pygame.image.load(self.folder_path+'red_rectangle.png')
        
         self.blue_player_image = pygame.transform.scale(
             self.blue_player_image, (10, 100))
@@ -35,28 +34,39 @@ class Pong ():
         
         self.blue_player = Player(game, self.blue_player_image,0)
         self.red_player = Player(game, self.red_player_image, self.game.xBound-10)
-        self.pong_ball = Ball(game, self.pong_ball_image)        
+        self.pong_ball = Ball(game, self, self.pong_ball_image)        
 
         self.reset_button = Button(
             game=game,
-            x=self.game.xBound-150,
-            y=25, 
+            x=self.game.xBound-200,
+            y=15, 
             text="Reset Game",
-            text_size=24
+            color=(255,165,0),
+            text_size=30
         )
 
         self.quit_button = Button(
             game=game,
-            x=0+150,
-            y=25,
+            x=0+20,
+            y=15,
             text="Quit",
-            text_size=24
+            color=(255,165,0),
+            text_size=30
         )
 
         self.blue_score = 0
         self.red_score = 0
 
+        
+        self.player_hit_sound = mixer.Sound(self.folder_path+'pong_hit.wav') 
+        self.wall_hit_sound = mixer.Sound(self.folder_path+'pong_wall_hit.wav') 
+        self.player_hit_sound.set_volume(0.2)
+        self.wall_hit_sound.set_volume(0.2)
+
     def game_loop(self, ):
+        mixer.music.load(self.folder_path+'background.wav')
+        mixer.music.set_volume(0.05)
+        mixer.music.play(-1)
         self.start_game()
         while self.game.inGame:
             self.game.setMisc()
@@ -78,6 +88,7 @@ class Pong ():
                 if self.reset_button.is_clicked(self.game.MOUSE_POS):
                     self.reset_game()
                 elif self.quit_button.is_clicked(self.game.MOUSE_POS):
+                    mixer.music.stop()
                     self.game.inGame = False
 
             self.update_objects()
@@ -193,7 +204,8 @@ class Player():
 
 
 class Ball():
-    def __init__(self, game, image):
+    def __init__(self, game, pong_game, image):
+        self.pong_game = pong_game
         self.image = image
         self.game = game
         self.x_position = self.game.yBound/2
@@ -240,8 +252,10 @@ class Ball():
 
     def collision_adjustment(self, hit_type, player=None):
         if hit_type == "boundary":
+            self.pong_game.wall_hit_sound.play()
             self.x_change, self.y_change = self.x_change, -self.y_change
         elif hit_type == "player":
+            self.pong_game.player_hit_sound.play()
             self.x_change, self.y_change = self.player_collision_speed['x'], self.player_collision_speed['y']
             self.ball_collision_speed(player)
 
@@ -298,9 +312,3 @@ class Ball():
             self.y_change = self.y_speed
         else:
             self.y_change = -self.y_speed
-
-
-if __name__ == '__main__':
-    pygame.init()
-    pong = Pong()
-    pong.game_loop()

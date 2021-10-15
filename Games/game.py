@@ -121,7 +121,7 @@ class Button:
         self.generate_button()
 
     def generate_button(self):
-        self.font = pygame.font.SysFont('Arial', self.text_size)
+        self.font = pygame.font.SysFont('franklingothicmedium', self.text_size)
         self.button_text = self.font.render(self.text, True, self.color)
         self.size = self.button_text.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
