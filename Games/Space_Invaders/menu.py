@@ -1,6 +1,5 @@
 import pygame
-import pdb
-from pygame import mixer
+import pathlib
 import json
 
 class Menu():
@@ -14,6 +13,7 @@ class Menu():
         self.defaultFont = pygame.font.Font('freesansbold.ttf', 32)
         self.bigDefaultFont = pygame.font.Font('freesansbold.ttf', 60)
         self.showDisplay = False
+        self.folder_path = str(pathlib.Path(__file__).parent.absolute()) + '/'
 
         # Variable that will allow the program to know how to move the cursor
         self.stateDifference = 82
@@ -160,6 +160,7 @@ class MainMenu(Menu,):
         self.space_invaders.currentMenu = self.state
 
     def quit(self):
+        pygame.mixer.music.stop()
         self.game.running, self.game.inMenu, self.showDisplay, self.game.inGame = False, False, False, False
 
 
@@ -319,11 +320,11 @@ class TextInput(Menu):
         if self.space_invaders.scores.get(self.name):
             if self.space_invaders.scores[self.name] < self.space_invaders.scoreboard.score:
                 self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
-                with open("highscores.json", 'w+') as f:
+                with open(self.folder_path+"highscores.json", 'w+') as f:
                     json.dump(self.space_invaders.scores, f)
         else:
             self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
-            with open("highscores.json", "w+") as f:
+            with open(self.folder_path+"highscores.json", "w+") as f:
                 json.dump(self.space_invaders.scores, f)
 
     def displayLoop(self):
