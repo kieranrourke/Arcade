@@ -38,7 +38,7 @@ class Pong ():
 
         self.reset_button = Button(
             game=game,
-            x=self.game.xBound-200,
+            x=self.game.xBound-150,
             y=15, 
             text="Reset Game",
             color=(255,165,0),
@@ -201,6 +201,7 @@ class Player():
     def reset_player(self):
         self.x_position = self.x_starting_position
         self.y_position = self.y_starting_position
+        self.y_change = 0
 
 
 class Ball():
@@ -213,7 +214,7 @@ class Ball():
 
         # Storing the different speeds for the ball 
         self.player_collision_speed = {'x': 11, 'y': 5}
-        self.reset_speed = {'x': 8, 'y': 3}
+        self.reset_speed = {'x': 6, 'y': 3}
         self.x_speed = -self.player_collision_speed['x']
         self.y_speed =  self.player_collision_speed['y']
         self.x_change = self.x_speed
