@@ -2,7 +2,7 @@
 
 ## Description
 
-Personal project that features a multi game interafec.  
+Personal project that features a multi game arcade interface.  
 The arcade currently features SpaceInvaders and Pong.  
 The games are created with Python using the library Pygame for graphics and sounds
 
