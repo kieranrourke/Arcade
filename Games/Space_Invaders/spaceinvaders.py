@@ -68,7 +68,7 @@ class SpaceInvaders():
             self.bullet.yChange = -12
 
         elif self.difficulty == 'Medium':
-            self.createEnemies(numEnemies=4)
+            self.createEnemies(numEnemies=5, height=68, width=68)
             self.player.xMovement = 10
             for i in range(self.numEnemies):
                 self.enemies[i].xMovement = 8
