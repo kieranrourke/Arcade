@@ -119,6 +119,13 @@ class MainMenu(Menu,):
                        'Highscores', 'Help', 'Quit']
         Menu.__init__(self, game, space_invaders, background, self.states, cursorLocation)
 
+        # Below Values are hard coded for a 800x800 window
+        self.new_game_button = pygame.Rect((241,394),(208,30))
+        self.choose_difficulty_button = pygame.Rect((235,479),(321,40))
+        self.highscores_button = pygame.Rect((242,557),(260,33))
+        self.help_button = pygame.Rect((240,640),(110,40))
+        self.quit_button = pygame.Rect((240,725),(110,40))
+
     def displayLoop(self):
         self.showDisplay = True
         while self.showDisplay:
@@ -135,29 +142,52 @@ class MainMenu(Menu,):
                 self.enterMenu()
             elif self.game.QUITKEY:
                 self.exitGame()
+            elif self.game.MOUSE_POS:
+                self.check_buttons()
 
             pygame.display.update()
             self.game.resetKeys()
+
+    def check_buttons(self,):
+        if self.new_game_button.collidepoint(self.game.MOUSE_POS):
+            self.change_menu('New Game')
+        elif self.choose_difficulty_button.collidepoint(self.game.MOUSE_POS):
+            self.change_menu('Choose Difficulty')
+        elif self.highscores_button.collidepoint(self.game.MOUSE_POS):
+            self.change_menu('Highscores')
+        elif self.help_button.collidepoint(self.game.MOUSE_POS):
+            self.change_menu('Help')
+        elif self.quit_button.collidepoint(self.game.MOUSE_POS):
+            self.change_menu('Quit')
+
 
     def enterMenu(self):
         '''
         When the enter key is pressed...
         '''
+        self.change_menu(self.state)
+
+    def change_menu(self, destination:str):
+        """Change menu to the desired menu
+
+        Args:
+            destination (str): desired menu to enter 
+        """
         self.game.resetKeys()
         self.showDisplay = False
 
-        if self.state == 'New Game':
+        if destination == 'New Game':
             pass
-        elif self.state == 'Choose Difficulty':
+        elif destination == 'Choose Difficulty':
             self.space_invaders.difficultyMenu.showDisplay = True
-        elif self.state == 'Highscores':
+        elif destination == 'Highscores':
             self.space_invaders.highscoresMenu.showDisplay = True
-        elif self.state == 'Help':
+        elif destination == 'Help':
             self.space_invaders.helpMenu.showDisplay = True
-        elif self.state == 'Quit':
-            self.quit()
+        elif destination == 'Quit':
+            self.quit() 
 
-        self.space_invaders.currentMenu = self.state
+        self.space_invaders.currentMenu = destination
 
     def quit(self):
         pygame.mixer.music.stop()
@@ -171,6 +201,14 @@ class DifficultyMenu(Menu):
         Menu.__init__(self, game, space_invaders, background, self.states, [
                       self.game.xBound/2-100, self.game.yBound/2-45])
         self.font = pygame.font.Font('freesansbold.ttf', 45)
+
+        self.easy_button = pygame.Rect((300,350),(110,40))
+        self.medium_button = pygame.Rect((300,400),(175,40))
+        self.hard_button = pygame.Rect((300,455),(110,40))
+
+        self.easy_cursor = [300,355]
+        self.medium_cursor = [300,355+50]
+        self.hard_cursor = [300,355+100]
 
     def displayLoop(self):
         while self.showDisplay:
@@ -189,14 +227,34 @@ class DifficultyMenu(Menu):
                 self.enterMenu()
             elif self.game.BACKKEY or self.game.ESCAPEKEY:
                 self.exitNotMainMenu()
+            elif self.game.MOUSE_POS:
+                self.check_buttons()
             elif self.game.QUITKEY:
                 self.exitGame()
+
             pygame.display.update()
             self.game.resetKeys()
 
     def enterMenu(self):
         self.space_invaders.difficulty = self.state
         self.exitNotMainMenu()
+    
+    def check_buttons(self):
+        if self.easy_button.collidepoint(self.game.MOUSE_POS):
+            self.space_invaders.difficulty = 'Easy'
+            self.cursorLocation = self.easy_cursor
+            self.state = 'Easy'
+            self.exitNotMainMenu()
+        elif self.medium_button.collidepoint(self.game.MOUSE_POS):
+            self.space_invaders.difficulty = 'Medium'
+            self.cursorLocation = self.medium_cursor
+            self.state = 'Medium'
+            self.exitNotMainMenu()
+        elif self.hard_button.collidepoint(self.game.MOUSE_POS):
+            self.space_invaders.difficulty = 'Hard'
+            self.cursorLocation = self.hard_cursor
+            self.state = 'Hard'
+            self.exitNotMainMenu()
 
 
 class HighscoresMenu(Menu):
