@@ -171,7 +171,7 @@ class MainMenu(Menu,):
         """Change menu to the desired menu
 
         Args:
-            destination (str): desired menu to enter 
+            destination (str): desired menu to enter
         """
         self.game.resetKeys()
         self.showDisplay = False
@@ -185,7 +185,7 @@ class MainMenu(Menu,):
         elif destination == 'Help':
             self.space_invaders.helpMenu.showDisplay = True
         elif destination == 'Quit':
-            self.quit() 
+            self.quit()
 
         self.space_invaders.currentMenu = destination
 
@@ -238,7 +238,7 @@ class DifficultyMenu(Menu):
     def enterMenu(self):
         self.space_invaders.difficulty = self.state
         self.exitNotMainMenu()
-    
+
     def check_buttons(self):
         if self.easy_button.collidepoint(self.game.MOUSE_POS):
             self.space_invaders.difficulty = 'Easy'
@@ -304,7 +304,7 @@ class HighscoresMenu(Menu):
 class HelpMenu(Menu):
     def __init__(self, game, space_invaders, background):
         Menu.__init__(self, game, space_invaders, background, None, None)
-        self.text = "Use keys A and D to Move,To shoot the gun use spacebar,You can only have 1 bullet shot at a time"
+        self.text = 'Use keys A and D to Move,To shoot the gun use spacebar,You can only have 1 bullet shot at a time,Highscores only save on hard difficulty'
         self.font = pygame.font.Font('freesansbold.ttf', 35)
         self.state = False
         self.offset = 50
@@ -327,14 +327,18 @@ class HelpMenu(Menu):
     def displayHelpText(self,):
         self.xPos = 50
         self.yPos = self.game.xBound/2 - 100
-        # So many different help texts in order to display across multiple lines
+        # Code to display help text across multiple lines
         helpText = self.font.render(self.text[:25], True, (0, 255, 0))
         self.game.screen.blit(helpText, (self.xPos, self.yPos))
         helpText = self.font.render(self.text[25:55], True, (0, 255, 0))
         self.game.screen.blit(helpText, (self.xPos, self.yPos + self.offset))
-        helpText = self.font.render(self.text[55:], True, (0, 255, 0))
+        helpText = self.font.render(self.text[55:97], True, (0, 255, 0))
         self.game.screen.blit(
             helpText, (self.xPos, self.yPos + self.offset * 2))
+        helpText = self.font.render(self.text[97:], True, (0, 255, 0))
+        self.game.screen.blit(
+            helpText, (self.xPos, self.yPos + self.offset * 3))
+
 
 
 class TextInput(Menu):
@@ -375,15 +379,16 @@ class TextInput(Menu):
         """Saves the score of the player
         """
         # Only saves score if it is higher than their previous score
-        if self.space_invaders.scores.get(self.name):
-            if self.space_invaders.scores[self.name] < self.space_invaders.scoreboard.score:
+        if self.space_invaders.difficulty == 'Hard':
+            if self.space_invaders.scores.get(self.name):
+                if self.space_invaders.scores[self.name] < self.space_invaders.scoreboard.score:
+                    self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
+                    with open(self.folder_path+"highscores.json", 'w+') as f:
+                        json.dump(self.space_invaders.scores, f)
+            else:
                 self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
-                with open(self.folder_path+"highscores.json", 'w+') as f:
+                with open(self.folder_path+"highscores.json", "w+") as f:
                     json.dump(self.space_invaders.scores, f)
-        else:
-            self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
-            with open(self.folder_path+"highscores.json", "w+") as f:
-                json.dump(self.space_invaders.scores, f)
 
     def displayLoop(self):
         self.name = ''
