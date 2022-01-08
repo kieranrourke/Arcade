@@ -28,10 +28,6 @@ Mac/Linux
 
 <pre><code>python3 main.py</code></pre>
 
-## Navigating Menus
-
-In SpaceInvaders you can use your mouse or the w and s key to navigate into menus                   
-To leave a menu use Backspace or the ESC key
 
 ## Contact Information:
 
