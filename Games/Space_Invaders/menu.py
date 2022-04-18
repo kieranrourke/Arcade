@@ -379,16 +379,15 @@ class TextInput(Menu):
         """Saves the score of the player
         """
         # Only saves score if it is higher than their previous score
-        if self.space_invaders.difficulty == 'Hard':
-            if self.space_invaders.scores.get(self.name):
-                if self.space_invaders.scores[self.name] < self.space_invaders.scoreboard.score:
-                    self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
-                    with open(self.folder_path+"highscores.json", 'w+') as f:
-                        json.dump(self.space_invaders.scores, f)
-            else:
+        if self.space_invaders.scores.get(self.name):
+            if self.space_invaders.scores[self.name] < self.space_invaders.scoreboard.score:
                 self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
-                with open(self.folder_path+"highscores.json", "w+") as f:
+                with open(self.folder_path+"highscores.json", 'w+') as f:
                     json.dump(self.space_invaders.scores, f)
+        else:
+            self.space_invaders.scores[self.name] = self.space_invaders.scoreboard.score
+            with open(self.folder_path+"highscores.json", "w+") as f:
+                json.dump(self.space_invaders.scores, f)
 
     def displayLoop(self):
         self.name = ''
